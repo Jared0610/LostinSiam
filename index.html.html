@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SiamStay — Discover Thailand's Finest Hotels</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #C9A84C;
+      --gold-light: #E8C97A;
+      --cream: #FAF6EE;
+      --dark: #1A1209;
+      --charcoal: #2D2416;
+      --muted: #8A7860;
+      --warm-white: #FDF9F2;
+      --red-accent: #B5382A;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 4rem;
+      background: rgba(26,18,9,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(201,168,76,0.25);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-weight: 600; letter-spacing: 0.08em;
+      color: var(--gold);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--cream); font-weight: 300; }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: rgba(250,246,238,0.75); font-size: 0.85rem; letter-spacing: 0.12em;
+      text-transform: uppercase; text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--gold-light); }
+    .nav-cta {
+      background: var(--gold); color: var(--dark);
+      padding: 0.5rem 1.4rem; border-radius: 2px;
+      font-size: 0.8rem; font-weight: 500; letter-spacing: 0.1em;
+      text-transform: uppercase; text-decoration: none;
+      transition: background 0.3s;
+    }
+    .nav-cta:hover { background: var(--gold-light); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      background:
+        linear-gradient(160deg, rgba(26,18,9,0.72) 0%, rgba(26,18,9,0.35) 60%, rgba(201,168,76,0.15) 100%),
+        url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1800&q=80') center/cover no-repeat;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      padding: 10rem 4rem 6rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 120px;
+      background: linear-gradient(to top, var(--cream), transparent);
+    }
+    .hero-eyebrow {
+      font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--gold-light); margin-bottom: 1.2rem;
+      display: flex; align-items: center; gap: 0.8rem;
+      animation: fadeUp 0.8s ease both;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block; width: 36px; height: 1px;
+      background: var(--gold);
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      font-weight: 300; line-height: 1.05;
+      color: var(--warm-white);
+      max-width: 700px;
+      animation: fadeUp 0.8s 0.15s ease both;
+    }
+    .hero h1 em { font-style: italic; color: var(--gold-light); }
+    .hero-sub {
+      margin-top: 1.5rem;
+      color: rgba(250,246,238,0.7); font-size: 1.05rem; font-weight: 300;
+      max-width: 480px; line-height: 1.7;
+      animation: fadeUp 0.8s 0.3s ease both;
+    }
+
+    /* ── SEARCH BOX ── */
+    .search-card {
+      margin-top: 3rem;
+      background: rgba(253,249,242,0.97);
+      border-radius: 4px;
+      padding: 2rem 2.5rem;
+      display: flex; gap: 1.5rem; align-items: flex-end;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+      border: 1px solid rgba(201,168,76,0.3);
+      animation: fadeUp 0.8s 0.45s ease both;
+      flex-wrap: wrap;
+    }
+    .search-field { display: flex; flex-direction: column; gap: 0.4rem; }
+    .search-field label {
+      font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); font-weight: 500;
+    }
+    .search-field input, .search-field select {
+      background: transparent;
+      border: none; border-bottom: 1.5px solid rgba(138,120,96,0.35);
+      padding: 0.4rem 0; font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem; color: var(--dark); outline: none;
+      min-width: 160px; transition: border-color 0.3s;
+    }
+    .search-field input:focus, .search-field select:focus {
+      border-color: var(--gold);
+    }
+    .divider { width: 1px; height: 56px; background: rgba(138,120,96,0.2); align-self: flex-end; margin-bottom: 4px; }
+    .search-btn {
+      background: var(--dark); color: var(--gold);
+      border: none; padding: 0.9rem 2.2rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase;
+      cursor: pointer; border-radius: 2px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .search-btn:hover { background: var(--gold); color: var(--dark); }
+
+    /* ── DESTINATIONS ── */
+    .section { padding: 6rem 4rem; }
+    .section-label {
+      font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 0.8rem;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 300;
+      color: var(--dark); line-height: 1.1;
+    }
+    .section-title em { font-style: italic; color: var(--muted); }
+
+    .dest-grid {
+      margin-top: 3rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: 280px 280px;
+      gap: 1rem;
+    }
+    .dest-card {
+      position: relative; overflow: hidden; border-radius: 3px;
+      cursor: pointer;
+    }
+    .dest-card:first-child { grid-row: 1 / 3; }
+    .dest-card img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .dest-card:hover img { transform: scale(1.06); }
+    .dest-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(26,18,9,0.75) 0%, transparent 55%);
+    }
+    .dest-info {
+      position: absolute; bottom: 1.5rem; left: 1.5rem;
+    }
+    .dest-info h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-weight: 400; color: #fff;
+    }
+    .dest-info span {
+      font-size: 0.75rem; color: var(--gold-light); letter-spacing: 0.1em;
+    }
+
+    /* ── FEATURED HOTELS ── */
+    .hotels-bg { background: var(--charcoal); }
+    .hotels-bg .section-label { color: var(--gold); }
+    .hotels-bg .section-title { color: var(--cream); }
+
+    .hotels-grid {
+      margin-top: 3rem;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+    }
+    .hotel-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(201,168,76,0.15);
+      border-radius: 3px; overflow: hidden;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+    .hotel-card:hover { transform: translateY(-4px); border-color: rgba(201,168,76,0.45); }
+    .hotel-card img { width: 100%; height: 220px; object-fit: cover; display: block; }
+    .hotel-body { padding: 1.5rem; }
+    .hotel-tag {
+      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 0.6rem;
+    }
+    .hotel-body h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem; font-weight: 400; color: var(--cream);
+      margin-bottom: 0.4rem;
+    }
+    .hotel-location {
+      font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+    .hotel-stars { color: var(--gold); font-size: 0.75rem; letter-spacing: 0.05em; margin-bottom: 1rem; }
+    .hotel-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .hotel-price { color: var(--cream); }
+    .hotel-price strong { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--gold-light); }
+    .hotel-price span { font-size: 0.75rem; color: var(--muted); }
+    .btn-book {
+      background: transparent;
+      border: 1px solid rgba(201,168,76,0.5);
+      color: var(--gold); padding: 0.45rem 1.1rem;
+      font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
+      cursor: pointer; border-radius: 2px; transition: all 0.3s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-book:hover { background: var(--gold); color: var(--dark); border-color: var(--gold); }
+
+    /* ── WHY US ── */
+    .features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-top: 3.5rem; }
+    .feature-item { text-align: center; padding: 2rem 1rem; }
+    .feature-icon {
+      font-size: 2rem; margin-bottom: 1rem; display: block;
+    }
+    .feature-item h4 {
+      font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600;
+      margin-bottom: 0.5rem; color: var(--dark);
+    }
+    .feature-item p { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials-bg { background: var(--warm-white); }
+    .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+    .testi-card {
+      background: #fff; padding: 2rem;
+      border-radius: 3px; border: 1px solid rgba(201,168,76,0.2);
+      position: relative;
+    }
+    .testi-card::before {
+      content: '"';
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 5rem; color: var(--gold-light); opacity: 0.4;
+      position: absolute; top: -0.5rem; left: 1.2rem;
+      line-height: 1;
+    }
+    .testi-text {
+      font-size: 0.9rem; line-height: 1.8; color: var(--charcoal);
+      margin-bottom: 1.5rem; font-style: italic;
+    }
+    .testi-author { display: flex; align-items: center; gap: 0.8rem; }
+    .testi-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      object-fit: cover; border: 2px solid var(--gold-light);
+    }
+    .testi-name { font-weight: 500; font-size: 0.85rem; color: var(--dark); }
+    .testi-flag { font-size: 0.75rem; color: var(--muted); }
+
+    /* ── BOOKING MODAL TRIGGER SECTION ── */
+    .cta-section {
+      background:
+        linear-gradient(135deg, rgba(26,18,9,0.9) 0%, rgba(45,36,22,0.95) 100%),
+        url('https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1400&q=80') center/cover;
+      padding: 7rem 4rem;
+      text-align: center;
+    }
+    .cta-section h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 300;
+      color: var(--cream); margin-bottom: 1rem;
+    }
+    .cta-section h2 em { color: var(--gold-light); font-style: italic; }
+    .cta-section p { color: rgba(250,246,238,0.65); font-size: 1rem; margin-bottom: 2.5rem; }
+    .cta-btns { display: flex; gap: 1rem; justify-content: center; }
+    .btn-primary {
+      background: var(--gold); color: var(--dark);
+      padding: 0.9rem 2.5rem; border: none; border-radius: 2px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.3s;
+    }
+    .btn-primary:hover { background: var(--gold-light); }
+    .btn-outline {
+      background: transparent; color: var(--cream);
+      padding: 0.9rem 2.5rem;
+      border: 1px solid rgba(250,246,238,0.35); border-radius: 2px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      cursor: pointer; transition: border-color 0.3s, color 0.3s;
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark);
+      padding: 4rem 4rem 2rem;
+      color: rgba(250,246,238,0.5);
+    }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+    .footer-brand .nav-logo { font-size: 1.4rem; display: inline-block; margin-bottom: 1rem; }
+    .footer-brand p { font-size: 0.85rem; line-height: 1.8; max-width: 240px; }
+    .footer-col h5 {
+      font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1.2rem;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    .footer-col a { color: rgba(250,246,238,0.5); text-decoration: none; font-size: 0.85rem; transition: color 0.3s; }
+    .footer-col a:hover { color: var(--gold-light); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding-top: 1.5rem;
+      display: flex; justify-content: space-between;
+      font-size: 0.75rem;
+    }
+
+    /* ── BOOKING MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(26,18,9,0.85); backdrop-filter: blur(6px);
+      display: none; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--warm-white);
+      padding: 3rem; border-radius: 4px;
+      max-width: 540px; width: 90%;
+      border: 1px solid rgba(201,168,76,0.3);
+      animation: scaleIn 0.3s ease;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+    .modal-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem; font-weight: 400; color: var(--dark);
+    }
+    .modal-close {
+      background: none; border: none; font-size: 1.4rem;
+      cursor: pointer; color: var(--muted); padding: 0.2rem;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+    .form-group label {
+      font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .form-group input, .form-group select {
+      border: 1px solid rgba(138,120,96,0.3);
+      border-radius: 2px; padding: 0.7rem 0.9rem;
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+      color: var(--dark); background: #fff; outline: none;
+      transition: border-color 0.3s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--gold); }
+    .modal-submit {
+      width: 100%; background: var(--dark); color: var(--gold);
+      border: none; padding: 1rem; border-radius: 2px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      cursor: pointer; margin-top: 0.5rem; transition: background 0.3s;
+    }
+    .modal-submit:hover { background: var(--gold); color: var(--dark); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero { padding: 8rem 1.5rem 4rem; }
+      .search-card { flex-direction: column; }
+      .section { padding: 4rem 1.5rem; }
+      .dest-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .dest-card:first-child { grid-row: auto; }
+      .hotels-grid, .testi-grid, .features { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .cta-section { padding: 4rem 1.5rem; }
+      .cta-btns { flex-direction: column; align-items: center; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">Siam<span>Stay</span></a>
+  <ul class="nav-links">
+    <li><a href="#">Destinations</a></li>
+    <li><a href="#">Hotels</a></li>
+    <li><a href="#">Experiences</a></li>
+    <li><a href="#">About</a></li>
+  </ul>
+  <a href="#" class="nav-cta" onclick="openModal()">Book Now</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">Discover Thailand</p>
+  <h1>Where <em>Golden</em><br>Temples Meet<br>Infinity Pools</h1>
+  <p class="hero-sub">Curated luxury hotels across Bangkok, Chiang Mai, Phuket, and beyond — for the discerning traveler.</p>
+
+  <div class="search-card">
+    <div class="search-field">
+      <label>Destination</label>
+      <select>
+        <option>Bangkok</option>
+        <option>Chiang Mai</option>
+        <option>Phuket</option>
+        <option>Koh Samui</option>
+        <option>Krabi</option>
+        <option>Pattaya</option>
+        <option>Hua Hin</option>
+      </select>
+    </div>
+    <div class="divider"></div>
+    <div class="search-field">
+      <label>Check-in</label>
+      <input type="date" />
+    </div>
+    <div class="divider"></div>
+    <div class="search-field">
+      <label>Check-out</label>
+      <input type="date" />
+    </div>
+    <div class="divider"></div>
+    <div class="search-field">
+      <label>Guests</label>
+      <select>
+        <option>1 Guest</option>
+        <option>2 Guests</option>
+        <option>3 Guests</option>
+        <option>4 Guests</option>
+        <option>5+ Guests</option>
+      </select>
+    </div>
+    <button class="search-btn" onclick="openModal()">Search Hotels</button>
+  </div>
+</section>
+
+<!-- DESTINATIONS -->
+<section class="section">
+  <p class="section-label reveal">Top Destinations</p>
+  <h2 class="section-title reveal">Explore <em>Thailand's</em><br>Most Beloved Cities</h2>
+  <div class="dest-grid reveal">
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&q=80" alt="Bangkok" />
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <h3>Bangkok</h3>
+        <span>243 hotels available</span>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1528181304800-259b08848526?w=600&q=80" alt="Phuket" />
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <h3>Phuket</h3>
+        <span>189 hotels available</span>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=600&q=80" alt="Koh Samui" />
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <h3>Koh Samui</h3>
+        <span>97 hotels available</span>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1548396893-e8be7a71c9e0?w=600&q=80" alt="Chiang Mai" />
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <h3>Chiang Mai</h3>
+        <span>134 hotels available</span>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=600&q=80" alt="Krabi" />
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <h3>Krabi</h3>
+        <span>72 hotels available</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED HOTELS -->
+<section class="section hotels-bg">
+  <p class="section-label reveal">Hand-Picked for You</p>
+  <h2 class="section-title reveal">Featured <em>Hotels &</em><br>Resorts</h2>
+  <div class="hotels-grid">
+    <!-- Card 1 -->
+    <div class="hotel-card reveal">
+      <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80" alt="Mandarin Oriental Bangkok" />
+      <div class="hotel-body">
+        <p class="hotel-tag">⚜ Iconic Luxury</p>
+        <h3>Mandarin Oriental Bangkok</h3>
+        <p class="hotel-location">📍 Charoenkrung, Bangkok</p>
+        <div class="hotel-stars">★★★★★</div>
+        <div class="hotel-footer">
+          <div class="hotel-price">
+            <strong>฿12,500</strong><br>
+            <span>per night</span>
+          </div>
+          <button class="btn-book" onclick="openModal()">Book</button>
+        </div>
+      </div>
+    </div>
+    <!-- Card 2 -->
+    <div class="hotel-card reveal">
+      <img src="https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=600&q=80" alt="Amanpuri Phuket" />
+      <div class="hotel-body">
+        <p class="hotel-tag">🌿 Beachfront Retreat</p>
+        <h3>Amanpuri Resort Phuket</h3>
+        <p class="hotel-location">📍 Pansea Beach, Phuket</p>
+        <div class="hotel-stars">★★★★★</div>
+        <div class="hotel-footer">
+          <div class="hotel-price">
+            <strong>฿28,000</strong><br>
+            <span>per night</span>
+          </div>
+          <button class="btn-book" onclick="openModal()">Book</button>
+        </div>
+      </div>
+    </div>
+    <!-- Card 3 -->
+    <div class="hotel-card reveal">
+      <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80" alt="Rosewood Koh Samui" />
+      <div class="hotel-body">
+        <p class="hotel-tag">🌊 Island Sanctuary</p>
+        <h3>Rosewood Koh Samui</h3>
+        <p class="hotel-location">📍 Lamai, Koh Samui</p>
+        <div class="hotel-stars">★★★★★</div>
+        <div class="hotel-footer">
+          <div class="hotel-price">
+            <strong>฿19,800</strong><br>
+            <span>per night</span>
+          </div>
+          <button class="btn-book" onclick="openModal()">Book</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="section">
+  <p class="section-label reveal">Why SiamStay</p>
+  <h2 class="section-title reveal">Travel with <em>Complete</em> Confidence</h2>
+  <div class="features">
+    <div class="feature-item reveal">
+      <span class="feature-icon">🏆</span>
+      <h4>Curated Selection</h4>
+      <p>Every hotel is personally vetted by our local experts — only the finest 3–5 star properties make the list.</p>
+    </div>
+    <div class="feature-item reveal">
+      <span class="feature-icon">💱</span>
+      <h4>Multi-Currency Pricing</h4>
+      <p>View prices in USD, EUR, GBP, AUD, and more. Pay in your home currency with no hidden fees.</p>
+    </div>
+    <div class="feature-item reveal">
+      <span class="feature-icon">📞</span>
+      <h4>24/7 English Support</h4>
+      <p>Our concierge team is available around the clock to assist with bookings, transfers, and local tips.</p>
+    </div>
+    <div class="feature-item reveal">
+      <span class="feature-icon">✅</span>
+      <h4>Free Cancellation</h4>
+      <p>Most properties offer free cancellation up to 48 hours before arrival. Book with peace of mind.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section testimonials-bg">
+  <p class="section-label reveal">Guest Stories</p>
+  <h2 class="section-title reveal">What Our <em>Travelers</em> Say</h2>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <p class="testi-text">SiamStay made our honeymoon in Koh Samui absolutely magical. The hotel recommendations were perfect and check-in was completely seamless.</p>
+      <div class="testi-author">
+        <img class="testi-avatar" src="https://i.pravatar.cc/80?img=47" alt="Emma" />
+        <div>
+          <p class="testi-name">Emma & James R.</p>
+          <p class="testi-flag">🇦🇺 Sydney, Australia</p>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <p class="testi-text">I've used many booking platforms but SiamStay is in a league of its own. The curated options saved me hours of research. Stayed at 3 hotels in 2 weeks — all excellent.</p>
+      <div class="testi-author">
+        <img class="testi-avatar" src="https://i.pravatar.cc/80?img=12" alt="Marcus" />
+        <div>
+          <p class="testi-name">Marcus T.</p>
+          <p class="testi-flag">🇩🇪 Berlin, Germany</p>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <p class="testi-text">As a solo traveler, safety and support matter most. SiamStay's 24/7 English concierge was a lifesaver when my flight was delayed. Highly recommend.</p>
+      <div class="testi-author">
+        <img class="testi-avatar" src="https://i.pravatar.cc/80?img=29" alt="Yuki" />
+        <div>
+          <p class="testi-name">Yuki N.</p>
+          <p class="testi-flag">🇯🇵 Tokyo, Japan</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2 class="reveal">Your <em>Thai Adventure</em><br>Starts Here</h2>
+  <p class="reveal">Join 80,000+ travelers who've booked their perfect Thailand stay with us.</p>
+  <div class="cta-btns reveal">
+    <button class="btn-primary" onclick="openModal()">Book Your Room</button>
+    <button class="btn-outline">Explore All Hotels</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a class="nav-logo" href="#">Siam<span style="color:var(--cream);font-weight:300">Stay</span></a>
+      <p>Thailand's premier hotel booking platform for international travelers. Find your perfect stay, from Bangkok's buzz to Phuket's shores.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Destinations</h5>
+      <ul>
+        <li><a href="#">Bangkok</a></li>
+        <li><a href="#">Phuket</a></li>
+        <li><a href="#">Chiang Mai</a></li>
+        <li><a href="#">Koh Samui</a></li>
+        <li><a href="#">Krabi</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Support</h5>
+      <ul>
+        <li><a href="#">Help Centre</a></li>
+        <li><a href="#">Cancellation Policy</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">FAQs</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="#">About SiamStay</a></li>
+        <li><a href="#">Partner Hotels</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 SiamStay. All rights reserved.</span>
+    <span>🇹🇭 Made with love for Thailand</span>
+  </div>
+</footer>
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <p style="font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.4rem;">Reserve Your Stay</p>
+        <h2>Book a Room</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" placeholder="John" />
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" placeholder="Smith" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" placeholder="john@example.com" />
+    </div>
+    <div class="form-group">
+      <label>Destination</label>
+      <select>
+        <option>Bangkok</option>
+        <option>Chiang Mai</option>
+        <option>Phuket</option>
+        <option>Koh Samui</option>
+        <option>Krabi</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Check-in Date</label>
+        <input type="date" />
+      </div>
+      <div class="form-group">
+        <label>Check-out Date</label>
+        <input type="date" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Guests</label>
+        <select>
+          <option>1 Guest</option>
+          <option>2 Guests</option>
+          <option>3 Guests</option>
+          <option>4+ Guests</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Room Type</label>
+        <select>
+          <option>Deluxe Room</option>
+          <option>Superior Room</option>
+          <option>Junior Suite</option>
+          <option>Suite</option>
+          <option>Villa</option>
+        </select>
+      </div>
+    </div>
+    <button class="modal-submit" onclick="submitBooking()">Confirm Booking Request</button>
+  </div>
+</div>
+
+<script>
+  // Modal
+  function openModal() {
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function closeModalOutside(e) {
+    if (e.target.id === 'modal') closeModal();
+  }
+  function submitBooking() {
+    alert('🙏 Thank you! Your booking request has been received.\nOur team will contact you within 2 hours via email.');
+    closeModal();
+  }
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        e.target.style.transitionDelay = `${(i % 4) * 0.1}s`;
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
