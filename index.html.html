@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lost in Siam — Get Wonderfully Lost in Thailand</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Instrument+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0D0A06;
+      --paper: #F5EFE3;
+      --saffron: #E8820C;
+      --saffron-light: #F5A845;
+      --temple-red: #9B2335;
+      --jade: #2D6B4F;
+      --sand: #C8A97E;
+      --mist: #8B8070;
+      --off-white: #FAF7F2;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Instrument Sans', sans-serif;
+      background: var(--ink);
+      color: var(--paper);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--saffron);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--saffron);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease, width 0.3s, height 0.3s;
+      opacity: 0.6;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 1;
+      pointer-events: none;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.5rem 3rem;
+      mix-blend-mode: normal;
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; font-weight: 700;
+      color: var(--paper); text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+    .nav-logo span { color: var(--saffron); font-style: italic; }
+    .nav-right { display: flex; align-items: center; gap: 2rem; }
+    .nav-links { display: flex; gap: 1.8rem; list-style: none; }
+    .nav-links a {
+      color: rgba(245,239,227,0.55); font-size: 0.78rem;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      text-decoration: none; transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--saffron-light); }
+    .nav-pill {
+      background: var(--saffron); color: var(--ink);
+      padding: 0.5rem 1.3rem; border-radius: 100px;
+      font-size: 0.75rem; font-weight: 500; letter-spacing: 0.1em;
+      text-transform: uppercase; text-decoration: none;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .nav-pill:hover { background: var(--saffron-light); transform: scale(1.04); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      position: relative;
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 3rem 5rem;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to top, rgba(13,10,6,0.95) 0%, rgba(13,10,6,0.3) 50%, rgba(13,10,6,0.6) 100%),
+        url('https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1800&q=85') center/cover no-repeat;
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 70% 40%, rgba(232,130,12,0.12) 0%, transparent 60%);
+    }
+
+    /* Floating stamp decoration */
+    .hero-stamp {
+      position: absolute; top: 8rem; right: 4rem;
+      width: 120px; height: 120px;
+      border: 3px solid rgba(232,130,12,0.5);
+      border-radius: 50%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transform: rotate(15deg);
+      animation: stampFloat 4s ease-in-out infinite;
+    }
+    .hero-stamp span:first-child { font-size: 1.8rem; }
+    .hero-stamp span:last-child {
+      font-size: 0.55rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--saffron);
+      margin-top: 0.3rem;
+    }
+    @keyframes stampFloat {
+      0%, 100% { transform: rotate(15deg) translateY(0); }
+      50% { transform: rotate(15deg) translateY(-10px); }
+    }
+
+    .hero-content { position: relative; z-index: 2; max-width: 800px; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--saffron); margin-bottom: 1.5rem;
+      animation: fadeUp 1s ease both;
+    }
+    .hero-tag::before, .hero-tag::after {
+      content: '—'; opacity: 0.5;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3.5rem, 8vw, 7rem);
+      font-weight: 900; line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--paper);
+      animation: fadeUp 1s 0.15s ease both;
+    }
+    .hero h1 .italic { font-style: italic; color: var(--saffron); }
+    .hero h1 .outline {
+      -webkit-text-stroke: 1.5px var(--paper);
+      color: transparent;
+    }
+    .hero-bottom {
+      display: flex; align-items: flex-end;
+      justify-content: space-between; margin-top: 3rem;
+      animation: fadeUp 1s 0.3s ease both;
+      flex-wrap: wrap; gap: 2rem;
+    }
+    .hero-sub {
+      font-size: 1rem; color: rgba(245,239,227,0.6);
+      max-width: 380px; line-height: 1.75; font-weight: 300;
+    }
+    .hero-stats { display: flex; gap: 2.5rem; }
+    .stat { text-align: center; }
+    .stat strong {
+      display: block;
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 700; color: var(--saffron);
+      line-height: 1;
+    }
+    .stat span { font-size: 0.7rem; color: var(--mist); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* ── MARQUEE ── */
+    .marquee-wrap {
+      background: var(--saffron); overflow: hidden;
+      padding: 0.8rem 0; position: relative; z-index: 2;
+    }
+    .marquee-track {
+      display: flex; gap: 0;
+      animation: marquee 20s linear infinite;
+      white-space: nowrap;
+    }
+    .marquee-item {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.85rem; font-style: italic;
+      color: var(--ink); padding: 0 2rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .marquee-dot { width: 5px; height: 5px; background: var(--ink); border-radius: 50%; opacity: 0.4; }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ── SEARCH ── */
+    .search-section {
+      background: var(--paper);
+      padding: 4rem 3rem;
+      position: relative;
+    }
+    .search-section::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--saffron), var(--temple-red), var(--jade));
+    }
+    .search-label {
+      font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--saffron); margin-bottom: 0.5rem;
+    }
+    .search-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 700; color: var(--ink);
+      margin-bottom: 2rem;
+    }
+    .search-box {
+      display: flex; gap: 0; flex-wrap: wrap;
+      border: 2px solid var(--ink); border-radius: 4px; overflow: hidden;
+      background: #fff;
+    }
+    .s-field {
+      flex: 1; min-width: 160px;
+      border-right: 1.5px solid rgba(13,10,6,0.12);
+      padding: 1rem 1.2rem;
+      display: flex; flex-direction: column; gap: 0.3rem;
+    }
+    .s-field:last-of-type { border-right: none; }
+    .s-field label {
+      font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--mist);
+    }
+    .s-field input, .s-field select {
+      border: none; outline: none; background: transparent;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.95rem; color: var(--ink); font-weight: 500;
+    }
+    .search-go {
+      background: var(--ink); color: var(--saffron);
+      border: none; padding: 1rem 2rem;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase;
+      cursor: pointer; font-weight: 500;
+      transition: background 0.3s;
+    }
+    .search-go:hover { background: var(--saffron); color: var(--ink); }
+
+    /* ── DESTINATIONS ── */
+    .dest-section { padding: 6rem 3rem; background: var(--ink); }
+    .sec-eyebrow {
+      font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--saffron); margin-bottom: 0.6rem;
+    }
+    .sec-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem); font-weight: 700;
+      line-height: 1.1; margin-bottom: 3rem;
+    }
+    .sec-title em { font-style: italic; color: var(--sand); }
+
+    .dest-scroll {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+    }
+    .dest-card {
+      position: relative; aspect-ratio: 2/3;
+      overflow: hidden; border-radius: 6px;
+      cursor: pointer;
+      transition: transform 0.4s ease;
+    }
+    .dest-card:hover { transform: translateY(-8px); }
+    .dest-card:nth-child(2) { margin-top: 2rem; }
+    .dest-card:nth-child(4) { margin-top: 2rem; }
+    .dest-card img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .dest-card:hover img { transform: scale(1.08); }
+    .dest-grad {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(13,10,6,0.9) 0%, transparent 50%);
+    }
+    .dest-num {
+      position: absolute; top: 1rem; left: 1rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.7rem; color: rgba(245,239,227,0.4);
+      letter-spacing: 0.1em;
+    }
+    .dest-info {
+      position: absolute; bottom: 1.2rem; left: 1.2rem; right: 1.2rem;
+    }
+    .dest-info h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem; font-weight: 700; color: #fff;
+      margin-bottom: 0.2rem;
+    }
+    .dest-info p { font-size: 0.7rem; color: var(--saffron-light); letter-spacing: 0.08em; }
+
+    /* ── FEATURED ── */
+    .featured-section { background: var(--off-white); padding: 6rem 3rem; }
+    .featured-section .sec-title { color: var(--ink); }
+    .featured-section .sec-title em { color: var(--temple-red); }
+
+    .hotels-list { display: flex; flex-direction: column; gap: 1.5px; margin-top: 3rem; }
+    .hotel-row {
+      display: grid; grid-template-columns: 280px 1fr auto;
+      background: #fff; overflow: hidden;
+      border-radius: 4px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 1px solid rgba(13,10,6,0.08);
+    }
+    .hotel-row:hover {
+      transform: translateX(6px);
+      box-shadow: -6px 0 0 var(--saffron);
+    }
+    .hotel-row img { width: 100%; height: 180px; object-fit: cover; display: block; }
+    .hotel-info { padding: 1.5rem 2rem; display: flex; flex-direction: column; justify-content: center; }
+    .hotel-badge {
+      display: inline-block;
+      font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--jade); border: 1px solid var(--jade);
+      padding: 0.2rem 0.6rem; border-radius: 100px;
+      margin-bottom: 0.7rem; width: fit-content;
+    }
+    .hotel-info h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; font-weight: 700; color: var(--ink);
+      margin-bottom: 0.4rem;
+    }
+    .hotel-loc { font-size: 0.8rem; color: var(--mist); margin-bottom: 0.6rem; }
+    .hotel-amenities { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    .amenity { font-size: 0.7rem; color: var(--mist); }
+    .hotel-price-col {
+      padding: 1.5rem 2rem;
+      display: flex; flex-direction: column;
+      align-items: flex-end; justify-content: center;
+      border-left: 1px solid rgba(13,10,6,0.07);
+      min-width: 160px;
+    }
+    .hotel-stars { color: var(--saffron); font-size: 0.7rem; margin-bottom: 0.5rem; }
+    .price-label { font-size: 0.65rem; color: var(--mist); text-transform: uppercase; letter-spacing: 0.1em; }
+    .price-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; font-weight: 700; color: var(--ink);
+      line-height: 1; margin: 0.3rem 0;
+    }
+    .price-amount span { font-size: 0.9rem; color: var(--mist); }
+    .btn-view {
+      margin-top: 0.8rem;
+      background: var(--ink); color: var(--saffron);
+      border: none; padding: 0.55rem 1.2rem;
+      border-radius: 100px;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.3s;
+    }
+    .btn-view:hover { background: var(--saffron); color: var(--ink); }
+
+    /* ── EDITORIAL ── */
+    .editorial { background: var(--ink); padding: 6rem 3rem; }
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .edit-card {
+      position: relative; overflow: hidden; border-radius: 6px;
+      aspect-ratio: 4/3; cursor: pointer;
+    }
+    .edit-card.tall { aspect-ratio: 3/4; grid-row: span 2; }
+    .edit-card img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .edit-card:hover img { transform: scale(1.05); }
+    .edit-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(13,10,6,0.85) 0%, transparent 55%);
+    }
+    .edit-content {
+      position: absolute; bottom: 1.5rem; left: 1.5rem; right: 1.5rem;
+    }
+    .edit-tag {
+      font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--saffron); margin-bottom: 0.5rem;
+    }
+    .edit-content h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; font-weight: 700; color: #fff; line-height: 1.2;
+    }
+
+    /* ── WHY ── */
+    .why-section {
+      background: var(--saffron); padding: 5rem 3rem;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;
+      align-items: center;
+    }
+    .why-left h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem); font-weight: 900;
+      color: var(--ink); line-height: 1.05;
+    }
+    .why-left h2 em { font-style: italic; }
+    .why-left p { margin-top: 1.5rem; color: rgba(13,10,6,0.65); line-height: 1.8; }
+    .why-list { display: flex; flex-direction: column; gap: 1.5rem; }
+    .why-item { display: flex; gap: 1.2rem; align-items: flex-start; }
+    .why-icon {
+      width: 44px; height: 44px; background: var(--ink);
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .why-item h4 { font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; }
+    .why-item p { font-size: 0.85rem; color: rgba(13,10,6,0.6); line-height: 1.6; }
+
+    /* ── TESTIMONIALS ── */
+    .testi-section { background: var(--ink); padding: 6rem 3rem; }
+    .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
+    .testi-card {
+      background: rgba(245,239,227,0.04);
+      border: 1px solid rgba(245,239,227,0.1);
+      border-radius: 6px; padding: 2rem;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .testi-card:hover {
+      border-color: rgba(232,130,12,0.4);
+      background: rgba(232,130,12,0.04);
+    }
+    .testi-quote {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem; color: var(--saffron); opacity: 0.4;
+      line-height: 1; margin-bottom: 0.5rem;
+    }
+    .testi-text {
+      font-size: 0.9rem; line-height: 1.8; color: rgba(245,239,227,0.7);
+      font-style: italic; margin-bottom: 1.5rem;
+    }
+    .testi-author { display: flex; align-items: center; gap: 0.8rem; }
+    .testi-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      object-fit: cover; border: 2px solid rgba(232,130,12,0.4);
+    }
+    .testi-name { font-size: 0.85rem; font-weight: 500; }
+    .testi-from { font-size: 0.72rem; color: var(--mist); }
+
+    /* ── CTA ── */
+    .cta-section {
+      position: relative; overflow: hidden;
+      padding: 8rem 3rem; text-align: center;
+      background:
+        linear-gradient(135deg, rgba(155,35,53,0.9), rgba(13,10,6,0.98)),
+        url('https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=1400&q=80') center/cover;
+    }
+    .cta-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 900;
+      color: var(--paper); line-height: 1.05; margin-bottom: 1.5rem;
+    }
+    .cta-section h2 em { font-style: italic; color: var(--saffron-light); }
+    .cta-section p { color: rgba(245,239,227,0.6); margin-bottom: 3rem; font-size: 1.05rem; }
+    .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-big {
+      background: var(--saffron); color: var(--ink);
+      padding: 1rem 2.8rem; border: none; border-radius: 100px;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.85rem; font-weight: 500; letter-spacing: 0.12em;
+      text-transform: uppercase; cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .btn-big:hover { background: var(--saffron-light); transform: scale(1.03); }
+    .btn-ghost {
+      background: transparent; color: var(--paper);
+      padding: 1rem 2.8rem;
+      border: 1.5px solid rgba(245,239,227,0.3); border-radius: 100px;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase;
+      cursor: pointer; transition: border-color 0.3s, color 0.3s;
+    }
+    .btn-ghost:hover { border-color: var(--saffron); color: var(--saffron); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #080604; padding: 4rem 3rem 2rem;
+      border-top: 1px solid rgba(245,239,227,0.06);
+    }
+    .footer-top {
+      display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 3rem; margin-bottom: 3rem;
+    }
+    .footer-brand p { margin-top: 1rem; font-size: 0.85rem; color: var(--mist); line-height: 1.8; max-width: 220px; }
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 700; color: var(--paper);
+    }
+    .footer-logo span { color: var(--saffron); font-style: italic; }
+    .footer-col h5 {
+      font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--saffron); margin-bottom: 1.2rem;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+    .footer-col a {
+      color: var(--mist); text-decoration: none; font-size: 0.85rem;
+      transition: color 0.3s;
+    }
+    .footer-col a:hover { color: var(--saffron-light); }
+    .footer-bottom {
+      border-top: 1px solid rgba(245,239,227,0.06);
+      padding-top: 1.5rem;
+      display: flex; justify-content: space-between;
+      font-size: 0.75rem; color: rgba(139,128,112,0.6);
+      flex-wrap: wrap; gap: 0.5rem;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero { padding: 0 1.5rem 4rem; }
+      .hero-stamp { display: none; }
+      .search-section, .dest-section, .featured-section, .editorial, .testi-section, .cta-section, footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .dest-scroll { grid-template-columns: repeat(2, 1fr); }
+      .dest-card { margin-top: 0 !important; }
+      .hotel-row { grid-template-columns: 1fr; }
+      .hotel-row img { height: 220px; width: 100%; }
+      .hotel-price-col { border-left: none; border-top: 1px solid rgba(13,10,6,0.07); flex-direction: row; align-items: center; justify-content: space-between; }
+      .edit-grid { grid-template-columns: 1fr; }
+      .edit-card.tall { grid-row: span 1; aspect-ratio: 4/3; }
+      .why-section { grid-template-columns: 1fr; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .search-box { flex-direction: column; }
+      .s-field { border-right: none; border-bottom: 1px solid rgba(13,10,6,0.1); }
+      body { cursor: auto; }
+      .cursor, .cursor-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">Lost<span>inSiam</span></a>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#">Destinations</a></li>
+      <li><a href="#">Hotels</a></li>
+      <li><a href="#">Stories</a></li>
+      <li><a href="#">About</a></li>
+    </ul>
+    <a href="#search" class="nav-pill">Find Hotels</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-stamp">
+    <span>🛕</span>
+    <span>Thailand</span>
+  </div>
+  <div class="hero-content">
+    <p class="hero-tag">Your Guide to Thailand</p>
+    <h1>
+      Get<br>
+      <span class="italic">Wonderfully</span><br>
+      <span class="outline">Lost.</span>
+    </h1>
+    <div class="hero-bottom">
+      <p class="hero-sub">Hand-picked hotels across Thailand's most magical destinations — from Bangkok's electric streets to Phuket's turquoise shores.</p>
+      <div class="hero-stats">
+        <div class="stat"><strong>500+</strong><span>Hotels</span></div>
+        <div class="stat"><strong>12</strong><span>Destinations</span></div>
+        <div class="stat"><strong>4.9★</strong><span>Rated</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item">Bangkok <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Phuket <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Chiang Mai <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Koh Samui <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Krabi <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Hua Hin <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Pai <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Koh Lanta <span class="marquee-dot"></span></div>
+    <!-- duplicate for seamless loop -->
+    <div class="marquee-item">Bangkok <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Phuket <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Chiang Mai <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Koh Samui <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Krabi <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Hua Hin <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Pai <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Koh Lanta <span class="marquee-dot"></span></div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<section class="search-section" id="search">
+  <p class="search-label reveal">Start Your Journey</p>
+  <h2 class="search-title reveal">Where are you headed?</h2>
+  <div class="search-box reveal">
+    <div class="s-field">
+      <label>Destination</label>
+      <select>
+        <option>Bangkok</option>
+        <option>Chiang Mai</option>
+        <option>Phuket</option>
+        <option>Koh Samui</option>
+        <option>Krabi</option>
+        <option>Hua Hin</option>
+        <option>Pai</option>
+        <option>Koh Lanta</option>
+      </select>
+    </div>
+    <div class="s-field">
+      <label>Check-in</label>
+      <input type="date" />
+    </div>
+    <div class="s-field">
+      <label>Check-out</label>
+      <input type="date" />
+    </div>
+    <div class="s-field">
+      <label>Guests</label>
+      <select>
+        <option>1 Guest</option>
+        <option>2 Guests</option>
+        <option>3 Guests</option>
+        <option>4+ Guests</option>
+      </select>
+    </div>
+    <button class="search-go">Search →</button>
+  </div>
+</section>
+
+<!-- DESTINATIONS -->
+<section class="dest-section">
+  <p class="sec-eyebrow reveal">Explore Thailand</p>
+  <h2 class="sec-title reveal">Choose Your <em>Adventure</em></h2>
+  <div class="dest-scroll reveal">
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=500&q=80" alt="Bangkok" />
+      <div class="dest-grad"></div>
+      <span class="dest-num">01</span>
+      <div class="dest-info"><h3>Bangkok</h3><p>243 hotels</p></div>
+    </div>
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1528181304800-259b08848526?w=500&q=80" alt="Phuket" />
+      <div class="dest-grad"></div>
+      <span class="dest-num">02</span>
+      <div class="dest-info"><h3>Phuket</h3><p>189 hotels</p></div>
+    </div>
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1548396893-e8be7a71c9e0?w=500&q=80" alt="Chiang Mai" />
+      <div class="dest-grad"></div>
+      <span class="dest-num">03</span>
+      <div class="dest-info"><h3>Chiang Mai</h3><p>134 hotels</p></div>
+    </div>
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=500&q=80" alt="Koh Samui" />
+      <div class="dest-grad"></div>
+      <span class="dest-num">04</span>
+      <div class="dest-info"><h3>Koh Samui</h3><p>97 hotels</p></div>
+    </div>
+    <div class="dest-card">
+      <img src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=500&q=80" alt="Krabi" />
+      <div class="dest-grad"></div>
+      <span class="dest-num">05</span>
+      <div class="dest-info"><h3>Krabi</h3><p>72 hotels</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED HOTELS -->
+<section class="featured-section">
+  <p class="sec-eyebrow reveal">Editor's Picks</p>
+  <h2 class="sec-title reveal">Hotels Worth <em>Getting Lost</em> In</h2>
+  <div class="hotels-list">
+    <div class="hotel-row reveal">
+      <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&q=80" alt="Mandarin Oriental" />
+      <div class="hotel-info">
+        <span class="hotel-badge">✦ Iconic Luxury</span>
+        <h3>Mandarin Oriental Bangkok</h3>
+        <p class="hotel-loc">📍 Charoenkrung, Bangkok</p>
+        <div class="hotel-amenities">
+          <span class="amenity">🏊 Pool</span>
+          <span class="amenity">🍽 Fine Dining</span>
+          <span class="amenity">💆 Spa</span>
+          <span class="amenity">🛶 River View</span>
+        </div>
+      </div>
+      <div class="hotel-price-col">
+        <div class="hotel-stars">★★★★★</div>
+        <span class="price-label">From</span>
+        <div class="price-amount">$340<span>/night</span></div>
+        <button class="btn-view">Book via Agoda →</button>
+      </div>
+    </div>
+
+    <div class="hotel-row reveal">
+      <img src="https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=400&q=80" alt="Amanpuri" />
+      <div class="hotel-info">
+        <span class="hotel-badge">🌿 Beachfront</span>
+        <h3>Amanpuri Resort Phuket</h3>
+        <p class="hotel-loc">📍 Pansea Beach, Phuket</p>
+        <div class="hotel-amenities">
+          <span class="amenity">🏖 Private Beach</span>
+          <span class="amenity">🌴 Villa</span>
+          <span class="amenity">🧘 Wellness</span>
+          <span class="amenity">🤿 Water Sports</span>
+        </div>
+      </div>
+      <div class="hotel-price-col">
+        <div class="hotel-stars">★★★★★</div>
+        <span class="price-label">From</span>
+        <div class="price-amount">$760<span>/night</span></div>
+        <button class="btn-view">Book via Agoda →</button>
+      </div>
+    </div>
+
+    <div class="hotel-row reveal">
+      <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=400&q=80" alt="Rosewood" />
+      <div class="hotel-info">
+        <span class="hotel-badge">🌊 Island Escape</span>
+        <h3>Rosewood Koh Samui</h3>
+        <p class="hotel-loc">📍 Lamai, Koh Samui</p>
+        <div class="hotel-amenities">
+          <span class="amenity">🌅 Infinity Pool</span>
+          <span class="amenity">🏝 Ocean View</span>
+          <span class="amenity">🍹 Bar</span>
+          <span class="amenity">🚤 Boat Tours</span>
+        </div>
+      </div>
+      <div class="hotel-price-col">
+        <div class="hotel-stars">★★★★★</div>
+        <span class="price-label">From</span>
+        <div class="price-amount">$540<span>/night</span></div>
+        <button class="btn-view">Book via Agoda →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDITORIAL / GUIDES -->
+<section class="editorial">
+  <p class="sec-eyebrow reveal">Travel Stories</p>
+  <h2 class="sec-title reveal">Get <em>Inspired</em></h2>
+  <div class="edit-grid reveal">
+    <div class="edit-card tall">
+      <img src="https://images.unsplash.com/photo-1547483238-f400e65ccd56?w=600&q=80" alt="Bangkok" />
+      <div class="edit-overlay"></div>
+      <div class="edit-content">
+        <p class="edit-tag">📖 City Guide</p>
+        <h3>48 Hours in Bangkok: The Perfect Itinerary</h3>
+      </div>
+    </div>
+    <div class="edit-card">
+      <img src="https://images.unsplash.com/photo-1559628233-100c798642bc?w=600&q=80" alt="Phuket" />
+      <div class="edit-overlay"></div>
+      <div class="edit-content">
+        <p class="edit-tag">🏖 Beach Guide</p>
+        <h3>Phuket's Hidden Beaches You Haven't Heard Of</h3>
+      </div>
+    </div>
+    <div class="edit-card">
+      <img src="https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80" alt="Chiang Mai" />
+      <div class="edit-overlay"></div>
+      <div class="edit-content">
+        <p class="edit-tag">🌿 Nature</p>
+        <h3>Chiang Mai: Temples, Jungles & Night Markets</h3>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="why-section">
+  <div class="why-left reveal">
+    <h2>Why Book<br>Through<br><em>Lost in Siam?</em></h2>
+    <p>We do the research so you can focus on the adventure. Every hotel is vetted, every price is the best available.</p>
+  </div>
+  <div class="why-list reveal">
+    <div class="why-item">
+      <div class="why-icon">🔍</div>
+      <div>
+        <h4>Curated, Not Algorithmic</h4>
+        <p>Every hotel picked by humans who've actually stayed there — not just ranked by ad spend.</p>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">💰</div>
+      <div>
+        <h4>Best Price Guarantee</h4>
+        <p>We compare Agoda, Booking.com and more to show you the lowest rate available.</p>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">🌏</div>
+      <div>
+        <h4>Built for Foreigners</h4>
+        <p>All prices in USD/EUR, English support 24/7, and tips only a local would know.</p>
+      </div>
+    </div>
+    <div class="why-item">
+      <div class="why-icon">✅</div>
+      <div>
+        <h4>Free Cancellation Options</h4>
+        <p>Most hotels offer free cancellation up to 48 hours. Book with zero risk.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testi-section">
+  <p class="sec-eyebrow reveal">Real Travelers</p>
+  <h2 class="sec-title reveal">They Got <em>Lost Too</em></h2>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">Lost in Siam made our Phuket trip unforgettable. The hotel recommendations were spot-on and the guides saved us hours of planning.</p>
+      <div class="testi-author">
+        <img class="testi-avatar" src="https://i.pravatar.cc/80?img=47" alt="Emma" />
+        <div><p class="testi-name">Emma & James R.</p><p class="testi-from">🇦🇺 Sydney, Australia</p></div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">I've used many booking sites but this one actually feels like it was made for travelers, not just for profit. Stayed at 3 hotels — all perfect.</p>
+      <div class="testi-author">
+        <img class="testi-avatar" src="https://i.pravatar.cc/80?img=12" alt="Marcus" />
+        <div><p class="testi-name">Marcus T.</p><p class="testi-from">🇩🇪 Berlin, Germany</p></div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-quote">"</div>
+      <p class="testi-text">The travel guides are genuinely useful. Felt like getting advice from a friend who lives in Thailand rather than a generic travel blog.</p>
+      <div class="testi-author">
+        <img class="testi-avatar" src="https://i.pravatar.cc/80?img=29" alt="Yuki" />
+        <div><p class="testi-name">Yuki N.</p><p class="testi-from">🇯🇵 Tokyo, Japan</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2 class="reveal">Ready to Get<br><em>Wonderfully Lost?</em></h2>
+  <p class="reveal">Join 80,000+ travelers who found their perfect Thailand stay.</p>
+  <div class="cta-btns reveal">
+    <button class="btn-big">Browse All Hotels</button>
+    <button class="btn-ghost">Read Travel Guides</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo">Lost<span>inSiam</span></div>
+      <p>Thailand's most adventurous hotel guide for international travelers. Get wonderfully lost.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Destinations</h5>
+      <ul>
+        <li><a href="#">Bangkok</a></li>
+        <li><a href="#">Phuket</a></li>
+        <li><a href="#">Chiang Mai</a></li>
+        <li><a href="#">Koh Samui</a></li>
+        <li><a href="#">Krabi</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Guides</h5>
+      <ul>
+        <li><a href="#">Travel Tips</a></li>
+        <li><a href="#">Best Hotels</a></li>
+        <li><a href="#">Budget Travel</a></li>
+        <li><a href="#">Luxury Stays</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Info</h5>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Affiliate Disclosure</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 LostinSiam. All rights reserved.</span>
+    <span>🇹🇭 Made with love for Thailand</span>
+  </div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; });
+  function animRing() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(animRing); }
+  animRing();
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), (i % 3) * 80);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
