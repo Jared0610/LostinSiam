@@ -1,2 +1,0 @@
-# Siamstay
-Travel Hotel Accommodation
